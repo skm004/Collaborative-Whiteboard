@@ -55,9 +55,10 @@ Use bullet points and keep it concise.
 
 //Generate Diagram Route
 app.post("/generate", async (req, res) => {
-    try{
-        const { prompt } = req.body;
-        const aiPrompt = `
+  try {
+    const { prompt } = req.body;
+
+    const aiPrompt = `
 Convert this into a flowchart structure.
 
 Rules:
@@ -65,6 +66,7 @@ Rules:
 - Use types: process, decision
 - Include label
 - Include branch for decisions (yes/no)
+- Do NOT include any explanation
 
 Input:
 "${prompt}"
@@ -77,19 +79,27 @@ Output format:
   { "type": "process", "label": "Error", "branch": "no" }
 ]
 `;
-        const model = genAI.getGenerativeModel({
-            model: "llama3-8b-8192",
-        });
 
-        const result = await model.generateContent(aiPrompt);
-        const text = result.response.text();
+    const result = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: aiPrompt }],
+    });
 
-        const json = JSON.parse(text);
-        res.json(json);
-    } catch(err){
-        console.error("Generation Error:", err);
-        res.status(500).json({ error: "Failed to generate diagram" });
-    }
+    const text = result.choices[0].message.content;
+
+    // 🔥 CLEAN RESPONSE (VERY IMPORTANT)
+    const cleanText = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const json = JSON.parse(cleanText);
+
+    res.json(json);
+  } catch (err) {
+    console.error("Generation Error:", err);
+    res.status(500).json({ error: "Failed to generate diagram" });
+  }
 });
 
 

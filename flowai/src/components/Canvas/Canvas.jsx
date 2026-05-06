@@ -5,12 +5,8 @@ const Canvas = ({ onElementsChange, onApiReady }) => {
   return (
     <div className="h-screen">
       <Excalidraw
-        onChange={(elements) => {
-          onElementsChange(elements);
-        }}
-        excalidrawAPI={(api) => {
-          if (onApiReady) onApiReady(api);
-        }}
+        onChange={(elements) => onElementsChange(elements)}
+        excalidrawAPI={(api) => onApiReady && onApiReady(api)}  // ✅ expose API
       />
     </div>
   );
