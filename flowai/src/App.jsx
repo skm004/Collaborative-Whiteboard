@@ -74,7 +74,7 @@ function buildExcalidrawElements(nodes) {
     const { x, y } = posMap[i];
     const type = node.type === "decision" ? "diamond" : "rectangle";
 
-    // Shape
+    // SHAPE
     elements.push({
       id,
       type,
@@ -102,35 +102,37 @@ function buildExcalidrawElements(nodes) {
       locked: false,
     });
 
-    // Text (centered)
+    // ✅ TEXT (FIXED PROPERLY)
     elements.push({
       id: `text-${i}`,
       type: "text",
 
-      // 🔥 CENTER via container, not manual math
-      x: x,
-      y: y,
+      // place text box centered inside the shape
+      x: x + (SHAPE_WIDTH - 120) / 2,
+      y: y + (SHAPE_HEIGHT - 30) / 2,
 
-      width: SHAPE_WIDTH,
-      height: SHAPE_HEIGHT,
+      width: 120,
+      height: 30,
 
       angle: 0,
       text: node.label || "",
       originalText: node.label || "",
 
-      fontSize: 16,
+      fontSize: node.type === "decision" ? 14 : 16,
       fontFamily: 1,
 
       textAlign: "center",
       verticalAlign: "middle",
 
-      containerId: id, // 🔥 THIS is key
+      containerId: id,
 
       strokeColor: "#1e1e1e",
       backgroundColor: "transparent",
       fillStyle: "solid",
+
       strokeWidth: 1,
       strokeStyle: "solid",
+
       roughness: 1,
       opacity: 100,
 
@@ -158,7 +160,7 @@ function buildExcalidrawElements(nodes) {
 
     let fromIdx = i - 1;
 
-    // 🔥 FIX: branch connects from decision
+    // connect branches from decision
     if (node.branch && lastDecisionIndex !== -1) {
       fromIdx = lastDecisionIndex;
     }
@@ -210,14 +212,14 @@ function buildExcalidrawElements(nodes) {
       locked: false,
     });
 
-    // Arrow label (Yes/No)
+    // YES / NO LABEL
     if (node.branch) {
       elements.push({
         id: `arrow-text-${i}`,
         type: "text",
-        x: startX + (endX - startX) / 2 - 15,
+        x: startX + (endX - startX) / 2 - 20,
         y: startY + (endY - startY) / 2 - 10,
-        width: 30,
+        width: 40,
         height: 20,
         angle: 0,
         text: node.branch,
@@ -260,7 +262,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [prompt, setPrompt] = useState("");
-  const [generating, setGenerating] = useState(false);
+  const [generating, setGenerating] = useState(false);  
 
   const handleElementsChange = (rawElements) => {
     const cleaned = cleanElements(rawElements);
